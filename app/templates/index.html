@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DriveVault AI — Secure Encrypted Google Drive File Vault</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header Nav -->
+        <header class="app-header">
+            <div class="logo-group">
+                <div class="shield-icon">
+                    <i data-lucide="shield-check"></i>
+                </div>
+                <div>
+                    <h1>DriveVault AI</h1>
+                    <p class="subtitle">Zero-Knowledge Encrypted Google Drive File Vault</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <div id="drive-status-badge" class="badge badge-offline">
+                    <span class="status-dot"></span>
+                    <span id="drive-status-text">Local Vault Mode</span>
+                </div>
+                <button id="btn-connect-drive" class="btn btn-secondary">
+                    <i data-lucide="cloud"></i> Connect Google Drive
+                </button>
+            </div>
+        </header>
+
+        <!-- Security Banner -->
+        <div class="security-banner">
+            <div class="banner-item">
+                <i data-lucide="lock"></i>
+                <span><strong>AES-256-GCM</strong> Authenticated Encryption</span>
+            </div>
+            <div class="banner-item">
+                <i data-lucide="key-round"></i>
+                <span><strong>Argon2id</strong> Key Derivation</span>
+            </div>
+            <div class="banner-item">
+                <i data-lucide="eye-off"></i>
+                <span><strong>Zero Plaintext</strong> Uploaded to Cloud</span>
+            </div>
+            <div class="banner-item">
+                <i data-lucide="sparkles"></i>
+                <span><strong>Gemma AI</strong> Interface</span>
+            </div>
+        </div>
+
+        <main class="main-content">
+            <!-- Left Column: Operations & Vault Dropzone -->
+            <section class="vault-panel">
+                <div class="tab-nav">
+                    <button class="tab-btn active" data-tab="encrypt-tab">
+                        <i data-lucide="file-lock"></i> Encrypt & Upload
+                    </button>
+                    <button class="tab-btn" data-tab="decrypt-tab">
+                        <i data-lucide="file-key"></i> Decrypt File
+                    </button>
+                </div>
+
+                <!-- ENCRYPT TAB -->
+                <div id="encrypt-tab" class="tab-content active">
+                    <div class="dropzone" id="encrypt-dropzone">
+                        <input type="file" id="encrypt-file-input" class="file-input">
+                        <div class="dropzone-content">
+                            <i data-lucide="upload-cloud" class="dropzone-icon"></i>
+                            <h3>Drop your file here or click to browse</h3>
+                            <p class="file-hint">Any file type (PDF, Images, DOCX, ZIP, etc.)</p>
+                            <div id="selected-file-info" class="selected-file-info hidden">
+                                <i data-lucide="file"></i>
+                                <span id="selected-filename">filename.pdf</span>
+                                <span id="selected-filesize" class="badge">0 KB</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="encrypt-password">Vault Master Password</label>
+                        <div class="password-input-wrapper">
+                            <input type="password" id="encrypt-password" placeholder="Enter encryption password..." autocomplete="off">
+                            <button class="toggle-password" data-target="encrypt-password" type="button">
+                                <i data-lucide="eye"></i>
+                            </button>
+                        </div>
+                        <div class="argon-indicator">
+                            <span class="argon-tag">Argon2id Key Derivation Active</span>
+                            <div class="password-strength-meter">
+                                <div id="strength-bar" class="strength-bar"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="upload-to-drive-check" checked>
+                            <span>Save directly to Google Drive Vault</span>
+                        </label>
+                    </div>
+
+                    <div class="button-group">
+                        <button id="btn-encrypt-upload" class="btn btn-primary btn-block">
+                            <i data-lucide="shield-alert"></i> Encrypt & Package File (.vault)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- DECRYPT TAB -->
+                <div id="decrypt-tab" class="tab-content">
+                    <div class="dropzone" id="decrypt-dropzone">
+                        <input type="file" id="decrypt-file-input" accept=".vault" class="file-input">
+                        <div class="dropzone-content">
+                            <i data-lucide="key" class="dropzone-icon"></i>
+                            <h3>Drop an encrypted .vault file here</h3>
+                            <p class="file-hint">Or download from the Vault Files table on the right</p>
+                            <div id="selected-vault-info" class="selected-file-info hidden">
+                                <i data-lucide="shield-check"></i>
+                                <span id="selected-vault-filename">filename.pdf.vault</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="decrypt-password">Vault Master Password</label>
+                        <div class="password-input-wrapper">
+                            <input type="password" id="decrypt-password" placeholder="Enter password to decrypt..." autocomplete="off">
+                            <button class="toggle-password" data-target="decrypt-password" type="button">
+                                <i data-lucide="eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="button-group">
+                        <button id="btn-decrypt-file" class="btn btn-success btn-block">
+                            <i data-lucide="unlock"></i> Decrypt & Restore Original File
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Action Status Message Box -->
+                <div id="status-box" class="status-box hidden">
+                    <div id="status-icon"></div>
+                    <div id="status-message"></div>
+                </div>
+            </section>
+
+            <!-- Right Column: Vault Manager & Gemma AI Assistant -->
+            <section class="side-panel">
+                <!-- Encrypted Files Table -->
+                <div class="panel-card vault-files-card">
+                    <div class="card-header">
+                        <h3><i data-lucide="folder-lock"></i> DriveVault Storage</h3>
+                        <button id="btn-refresh-files" class="btn btn-sm btn-icon" title="Refresh files">
+                            <i data-lucide="refresh-cw"></i>
+                        </button>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="vault-table">
+                            <thead>
+                                <tr>
+                                    <th>File Name</th>
+                                    <th>Size</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vault-files-body">
+                                <tr>
+                                    <td colspan="3" class="empty-state">Loading vault files...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Gemma AI Vault Assistant Widget -->
+                <div class="panel-card gemma-card">
+                    <div class="card-header">
+                        <div class="gemma-title">
+                            <i data-lucide="bot" class="gemma-icon"></i>
+                            <div>
+                                <h3>Gemma AI Assistant</h3>
+                                <span class="model-badge">gemma-2-9b-it (Open-Weight)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="chat-bubble bot-bubble">
+                            Hello! I am your Gemma AI Vault Assistant. Tell me what you'd like to do (e.g., "Show my files", "Encrypt my resume", or "How does security work?").
+                        </div>
+                    </div>
+
+                    <form id="chat-form" class="chat-input-form">
+                        <input type="text" id="chat-input" placeholder="Ask Gemma (e.g. 'Show my encrypted files')..." autocomplete="off">
+                        <button type="submit" class="btn btn-primary btn-icon">
+                            <i data-lucide="send"></i>
+                        </button>
+                    </form>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>DriveVault AI &bull; Built with AES-256-GCM, Argon2id, Google Drive API & Gemma Open-Weight AI</p>
+        </footer>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirm-modal" class="modal-overlay hidden">
+        <div class="modal-box">
+            <div class="modal-header">
+                <i data-lucide="alert-triangle" class="modal-alert-icon"></i>
+                <h3 id="modal-title">Confirm Action</h3>
+            </div>
+            <div class="modal-body" id="modal-body">
+                Are you sure you want to perform this operation?
+            </div>
+            <div class="modal-footer">
+                <button id="modal-btn-cancel" class="btn btn-secondary">Cancel</button>
+                <button id="modal-btn-confirm" class="btn btn-danger">Confirm Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js?v=3"></script>
+</body>
+</html>

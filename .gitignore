@@ -1,0 +1,19 @@
+# Environment and Secrets
+.env
+*.env
+
+# Python Cache & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Local Vault Storage
+data/local_vault/*
+!data/local_vault/.gitkeep
+
+# IDE and System files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
